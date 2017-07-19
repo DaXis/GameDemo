@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class ImageFragmentAdapter extends FragmentStatePagerAdapter {
 
+    //commit
     private ArrayList<String> urls = new ArrayList<String>();
     private ArrayList<Integer> views = new ArrayList<Integer>();
 
