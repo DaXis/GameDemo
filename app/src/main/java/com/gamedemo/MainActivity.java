@@ -28,6 +28,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private LoginFragment loginFragment;
     private CircleImageView profile;
     private TextView username, email;
+    private static final String DB_PATH = "/data/data/com.gamedemo/databases/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +66,14 @@ public class MainActivity extends AppCompatActivity {
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setHomeButtonEnabled(true);
+
+        toolbar.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                copyBD();
+                return false;
+            }
+        });
     }
 
     private void initView(){
@@ -231,6 +248,34 @@ public class MainActivity extends AppCompatActivity {
             initHomeFragment();
         else
             super.onBackPressed();
+    }
+
+    public void copyBD(){
+        try {
+            OutputStream databaseOutputStream = new FileOutputStream(SingleTon.getCacheCarpet().getAbsolutePath()+"/Games.sqlite");
+            InputStream databaseInputStream;
+
+            byte[] buffer = new byte[1024];
+            @SuppressWarnings("unused")
+            int length;
+
+            File file = new File(DB_PATH, "Games");
+            databaseInputStream = new FileInputStream(file);
+
+            while ((length = databaseInputStream.read(buffer)) > 0) {
+                databaseOutputStream.write(buffer);
+            }
+
+            databaseInputStream.close();
+            databaseOutputStream.flush();
+            databaseOutputStream.close();
+            //file.delete();
+            //Log.v("copyDataBase()", "copy ended");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

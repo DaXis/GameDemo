@@ -66,6 +66,7 @@ public class SingleTon extends Application {
     private static CircleImageView profile;
     private static TextView username, email;
     private static MenuItem login;
+    private static File cache;
 
     public SingleTon() {
         super();
@@ -98,16 +99,20 @@ public class SingleTon extends Application {
         return isConnected;
     }
 
-    private static File cache;
     private void genCacheDataCarpet(){
         if(cache == null)
-            cache = new File(Environment.getExternalStorageDirectory(), "Games");
+            cache = new File(Environment.getExternalStorageDirectory(), ".Games");
         if (!cache.exists()) {
             cache.mkdirs();
         }
     }
 
     public static File getCacheCarpet(){
+        if(cache == null)
+            cache = new File(Environment.getExternalStorageDirectory(), ".Games");
+        if (!cache.exists()) {
+            cache.mkdirs();
+        }
         return cache;
     }
 
@@ -232,6 +237,12 @@ public class SingleTon extends Application {
 
     public static MenuItem getLogin(){
         return login;
+    }
+
+    public static boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
 }

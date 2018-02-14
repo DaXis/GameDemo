@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -36,15 +35,15 @@ import android.widget.VideoView;
 
 import com.gamedemo.R;
 import com.gamedemo.SingleTon;
+import com.gamedemo.custom.ExpandableHeightGridView;
 import com.gamedemo.utils.BlurEffect;
 import com.gamedemo.utils.ConnectToServer;
-import com.gamedemo.utils.ExpandableHeightGridView;
-import com.gamedemo.utils.GalleryAdapter;
+import com.gamedemo.adapters.GalleryAdapter;
 import com.gamedemo.utils.ParseNote;
-import com.gamedemo.utils.YoutubeFragment;
+import com.gamedemo.adapters.YoutubeFragment;
+import com.gamedemo.utils.TextFileMannager;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
@@ -62,7 +61,7 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
 
     private View rootView;
     private Bundle bundle;
-    private String url, titulo, color, youtube, pic, picBack;
+    private String url, title, root;
     private LinearLayout scrollView;
     private ArrayList<String> nota = new ArrayList<String>(), urls = new ArrayList<String>();
     private String videoID = "";
@@ -71,8 +70,9 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
     private ViewPager viewPager;
     private ImageFragmentAdapter imageAdapter;
     //private CirclePageIndicator circlePageIndicator;
-    private int imgId;
+    private int imgId, id;
     private PopupMenu popup;
+    private YouTubePlayer youTubePlayer;
     //private static TwitterActivities twitter;
     //private static FacebookActivities facebook;
     //private WebView content;
@@ -82,7 +82,10 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bundle = getArguments();
+        id = bundle.getInt("id");
         url = bundle.getString("url");
+        title = bundle.getString("title");
+        root = bundle.getString("root");
     }
 
     @Override
@@ -97,24 +100,62 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
     }
 
     @Override
+    public void onPause(){
+        super.onPause();
+        if(youTubePlayer != null){
+            if(youTubePlayer.isPlaying())
+                youTubePlayer.pause();
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(youTubePlayer != null){
+            if(youTubePlayer.isPlaying())
+                youTubePlayer.release();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.note_frag, container, false);
         this.rootView = rootView;
 
+        Log.d("note url", url);
         SingleTon.showLoadDialog(this.getFragmentManager());
-        String[] urls = {url};
-        Object[] args = {urls,1,this};
-        ConnectToServer connectToServer = new ConnectToServer(args);
+        if(!SingleTon.getBdh().getNota(id)){
+            if(SingleTon.isOnline()){
+                String[] urls = {url};
+                Object[] args = {urls,1,this,id};
+                ConnectToServer connectToServer = new ConnectToServer(args, root);
+            }
+        } else {
+            if(new File(SingleTon.getCacheCarpet(), ""+id).exists()){
+                Log.d("offline exist "+id, ""+true);
+                ParseNote parseNote = new ParseNote(url, false, id);
+                getResult(parseNote);
+            } else {
+                if(SingleTon.isOnline()){
+                    String[] urls = {url};
+                    Object[] args = {urls,1,this,id};
+                    ConnectToServer connectToServer = new ConnectToServer(args, root);
+                }
+            }
+        }
 
         return rootView;
     }
 
-    public void getResult(String res) {
+    public void getResult(ParseNote res) {
+        if(!SingleTon.getBdh().getNota(id)) {
+            SingleTon.getBdh().insertToNota(id, url, title, root, new File(SingleTon.getCacheCarpet(), ""+id).getAbsolutePath());
+        }
         initViews(res);
         SingleTon.dissmissLoad();
     }
 
-    private void initViews(String res){
+    private void initViews(ParseNote res){
         scrollView = (LinearLayout)rootView.findViewById(R.id.scrollView);
         fullImg = (RelativeLayout)rootView.findViewById(R.id.fullImg);
         close_button = (ImageView)rootView.findViewById(R.id.close_button);
@@ -125,8 +166,8 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         //img_full = (ImageView)findViewById(R.id.img_full);
         //seec = (ProgressBar)findViewById(R.id.seec);
 
-        TextView title = (TextView)rootView.findViewById(R.id.title);
-        title.setText(titulo);
+        TextView titleTv = (TextView)rootView.findViewById(R.id.title);
+        titleTv.setText(Html.fromHtml(title));
 
         //final LinearLayout ll = (LinearLayout)findViewById(R.id.titleLL);
         final CardView ll = (CardView)rootView.findViewById(R.id.titleLL);
@@ -154,11 +195,17 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         } else
             new loadNote().executeOnExecutor(Memory.getThreadPoolExecutor());*/
 
-        Log.v("notas --->", res);
-        reparseNote(res);
-        putViews();
-        parseToGetGallery(res);
-        initImageAdapter();
+        //Log.v("notas --->", res.body);
+        if(root.contains("LevelUp")){
+            reparseLvUpNote(res.body);
+            setLvUpImg(res.imgLvl);
+            putViews();
+        } else {
+            reparseNote(res.body);
+            putViews();
+            parseToGetGallery(res.body);
+            initImageAdapter();
+        }
     }
 
     //TODO OnClick
@@ -267,7 +314,7 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         final Elements e0 = doc.select("div.twelve");
         final Elements e1 = e0.select("p");
         if(!e0.isEmpty()){
-            //nota.add(e1.get(0).text());
+            nota.add(e1.get(0).text());
             for(int i = 0; i < e1.size(); i++){
                 nota.add(e1.get(i).html());
                 Log.i(""+i,""+e1.get(i).html());
@@ -276,9 +323,43 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         Log.v("notes size ===>", "" + nota.size());
     }
 
+    public void reparseLvUpNote(String html){
+        nota.clear();
+
+        final Document doc = Jsoup.parse(html);
+        final Elements e0 = doc.select("p,iframe");
+        if(!e0.isEmpty()){
+            for(int i = 0; i < e0.size(); i++){
+                if(e0.get(i).html().length() > 0)
+                    nota.add(e0.get(i).html());
+                else
+                    nota.add(e0.get(i).toString());
+                Log.d("nota.get("+i+")", nota.get(i));
+            }
+        }
+        Log.v("notes size ===>", "" + nota.size());
+    }
+
+    private void setLvUpImg(String imgLvl){
+        Log.d("imgLvl --->", imgLvl);
+        ProgressBar spinner = new ProgressBar(getActivity());
+        final ImageView img = new ImageView(getActivity());
+        //img.setId(0);
+        Picasso.with(getActivity()).load(imgLvl).into(img);
+        img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        img.setPadding(15, 10, 15, 10);
+        scrollView.addView(img);
+    }
+
     private void putViews(){
         imgId = 0;
         for(int i = 0; i < nota.size(); i++){
+            //Log.d("nota.get("+i+")", nota.get(i));
             if(nota.get(i).contains("href")) {
                 if (nota.get(i).contains("youtube")){
                     parseToGetYoutubeVideo(nota.get(i), i, false);
@@ -297,7 +378,10 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
                     parseToGetYoutubeVideo(nota.get(i), i, true);
                     continue;
                 } else {
-                    parseToGetText(nota.get(i));
+                    if(nota.get(i).contains("<img"))
+                        parseToGetTextAndImgs(nota.get(i));
+                    else
+                        parseToGetText(nota.get(i));
                     continue;
                 }
             }
@@ -421,6 +505,7 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
     }
 
     private void parseToGetYoutubeVideo(String html, int id, boolean iframe){
+        Log.d("youtube html", html);
         final Document doc;
         doc = Jsoup.parse(html);
 
@@ -458,6 +543,7 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
 
                 if(!videoID.equals("other")){
                     FrameLayout youLay = new FrameLayout(getActivity());
+                    youLay.setId(id);
                     youLay.setPadding(15, 15, 15, 15);
                     scrollView.addView(youLay);
                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -543,6 +629,7 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
 
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
+        this.youTubePlayer = youTubePlayer;
         if(!b)
             youTubePlayer.loadVideo(videoID);
     }
@@ -581,6 +668,61 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
                 txt.setText(Html.fromHtml(nota));
                 txt.setPadding(15,10,15,10);
                 scrollView.addView(txt);
+            }
+        }
+    }
+
+    private void parseToGetTextAndImgs(String nota){
+        boolean addPic = false;
+        final Document doc;
+        doc = Jsoup.parse(nota);
+        Elements e0 = doc.select("img");
+        String url = e0.get(0).attr("src").toString();
+        FrameLayout frameLayout = new FrameLayout(getActivity());
+        ProgressBar spinner = new ProgressBar(getActivity());
+        final ImageView img = new ImageView(getActivity());
+        img.setId(imgId);
+        img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("imgId", "" + img.getId());
+                if (fullImg.getVisibility() == View.GONE) {
+                    fullImg.setBackground(getBluredView());
+                    fullImg.setVisibility(View.VISIBLE);
+                    viewPager.setCurrentItem(img.getId());
+                }
+            }
+        });
+        img.setPadding(15, 10, 15, 10);
+        frameLayout.addView(img);
+        frameLayout.addView(spinner);
+        if(!url.contains("barrita") && !url.contains("389289_832x14")) {
+            Picasso.with(getActivity()).load(url).into(img);
+            urls.add(url);
+            scrollView.addView(frameLayout);
+            addPic = true;
+        }
+        imgId++;
+        spinner.setVisibility(View.GONE);
+
+        if(!nota.contains("<script>")){
+            if(nota.contains("<span class")){
+                String note = reparseToText(nota);
+                if(note != null){
+                    TextView txt = new TextView(getActivity());
+                    txt.setText(Html.fromHtml(note));
+                    txt.setPadding(15,10,15,10);
+                    scrollView.addView(txt);
+                }
+            } else {
+                /*Elements e1 = doc.select("img.size-full");
+                doc.*/
+                if(!addPic){
+                    TextView txt = new TextView(getActivity());
+                    txt.setText(Html.fromHtml(nota));
+                    txt.setPadding(15,10,15,10);
+                    scrollView.addView(txt);
+                }
             }
         }
     }

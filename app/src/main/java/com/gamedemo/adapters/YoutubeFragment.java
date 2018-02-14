@@ -1,4 +1,4 @@
-package com.gamedemo.utils;
+package com.gamedemo.adapters;
 
 import android.os.Bundle;
 

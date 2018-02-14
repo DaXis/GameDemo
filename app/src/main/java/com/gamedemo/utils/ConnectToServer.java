@@ -38,6 +38,10 @@ public class ConnectToServer {
         new InitParse().executeOnExecutor(SingleTon.getsExecutor(), args);
     }
 
+    public ConnectToServer(Object[] args, String arg){
+        new InitParseNote().executeOnExecutor(SingleTon.getsExecutor(), args);
+    }
+
     public class InitParse extends AsyncTask<Object[], String, String> {
 
         private Object[] aux;
@@ -62,10 +66,10 @@ public class ConnectToServer {
                     url = urls[i];
                     htmlToJson.initParse(url);
                 }
-            } else if(object.getClass() == NoteFragment.class){
+            }/* else if(object.getClass() == NoteFragment.class){
                 parseNote = new ParseNote(urls[0]);
                 return parseNote.getBody();
-            }
+            }*/
 
             return "";
         }
@@ -80,22 +84,56 @@ public class ConnectToServer {
         }
     }
 
-    private void decideMethod(int i, Object o, String result){
+    public class InitParseNote extends AsyncTask<Object[], ParseNote, ParseNote> {
+
+        private Object[] aux;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            System.gc();
+        }
+
+        @Override
+        protected ParseNote doInBackground(Object[]... params) {
+            aux = params[0];
+            String[] urls = (String[])aux[0];
+
+            Object object = aux[2];
+            if(object.getClass() == NoteFragment.class){
+                parseNote = new ParseNote(urls[0], true, (int)aux[3]);
+                return parseNote;
+            }
+
+            return null;
+        }
+
+        protected void onProgressUpdate(String... progress) {
+            Log.d("ANDRO_ASYNC", progress[0]);
+        }
+
+        protected void onPostExecute (ParseNote result){
+            Log.d("onPostExecute", result.toString());
+            decideMethod((int)aux[1], aux[2], result);
+        }
+    }
+
+    private void decideMethod(int i, Object o, Object result){
         if(i == 0){
             HomeFragment homeFragment = (HomeFragment)o;
             homeFragment.getResult();
         }
         if(i == 1){
             NoteFragment noteFragment = (NoteFragment)o;
-            noteFragment.getResult(result);
+            noteFragment.getResult((ParseNote) result);
         }
         if(i == 2){
             RegisterFragment registerFragment = (RegisterFragment)o;
-            registerFragment.getResult(result);
+            registerFragment.getResult((String) result);
         }
         if(i == 3){
             LoginFragment loginFragment = (LoginFragment)o;
-            loginFragment.getResult(result);
+            loginFragment.getResult((String) result);
         }
     }
 

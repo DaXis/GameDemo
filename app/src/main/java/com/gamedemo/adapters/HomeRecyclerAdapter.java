@@ -14,16 +14,17 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.gamedemo.adapters.OnItemClick;
+
 import com.gamedemo.R;
 import com.gamedemo.SingleTon;
+import com.gamedemo.interfaces.OnItemClick;
 import com.gamedemo.objs.HomeObj;
-import com.gamedemo.utils.YoutubeFragment;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder>
         implements YouTubePlayer.OnInitializedListener {
@@ -33,10 +34,17 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     private FragmentManager fragmentManager;
     private String videoID;
     private static OnItemClick onItemClick;
+    private int[] colors;
 
     public HomeRecyclerAdapter(Activity activity, ArrayList<HomeObj> homeNote, FragmentManager fragmentManager) {
         this.activity = activity;
         this.homeNote = homeNote;
+        colors = new int[]{activity.getResources().getColor(R.color.accent_color),
+                            activity.getResources().getColor(R.color.primary_color),
+                            activity.getResources().getColor(R.color.dark_primary_color),
+                            activity.getResources().getColor(R.color.pager_back),
+                            activity.getResources().getColor(R.color.orange),
+                            activity.getResources().getColor(R.color.divider_color)};
         this.fragmentManager = fragmentManager;
     }
 
@@ -54,6 +62,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             holder.text.setText(Html.fromHtml(homeNote.get(position).titulo));
             holder.content.setText(homeNote.get(position).resumen);
             holder.fuente.setText(homeNote.get(position).rootPage);
+            holder.time.setText(homeNote.get(position).date);
 
             if(homeNote.get(position).backImg.length() > 0){
                 if(homeNote.get(position).bitmap == null)
@@ -64,7 +73,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
                 if(homeNote.get(position).color.length() > 1)
                     holder.ll.setBackgroundColor(Color.parseColor(colorIssue(homeNote.get(position).color)));
                 else
-                    holder.ll.setBackgroundColor(activity.getResources().getColor(R.color.accent_color));
+                    holder.ll.setBackgroundColor(getRandomColor());
             }
 
             if(homeNote.get(position).urlImg.length() > 0){
@@ -137,7 +146,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final LinearLayout ll;
-        public final TextView text, content, fuente;
+        public final TextView text, content, fuente, time;
         public final ImageView image;
         public final FrameLayout youLay;
 
@@ -147,6 +156,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             text = (TextView)view.findViewById(R.id.titulo);
             content = (TextView)view.findViewById(R.id.contenido);
             fuente = (TextView)view.findViewById(R.id.fuente);
+            time = (TextView)view.findViewById(R.id.time);
             image = (ImageView)view.findViewById(R.id.image);
             youLay = (FrameLayout)view.findViewById(R.id.youtube);
             view.setOnClickListener(this);
@@ -162,6 +172,17 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     public void SetOnItemClickListener(final OnItemClick onItemClick){
         this.onItemClick = onItemClick;
+    }
+
+    private int getRandomColor(){
+        int color = 0;
+        Random r = new Random();
+        int aux = r.nextInt(6 - 1) + 1;
+        if(aux < colors.length)
+            color = colors[aux];
+        else
+            color = colors[0];
+        return color;
     }
 
 }

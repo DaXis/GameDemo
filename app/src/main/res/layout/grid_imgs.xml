@@ -6,7 +6,7 @@
     android:gravity="center"
     android:background="@drawable/img_back">
 
-    <custom.ExpandableHeightGridView
+    <com.gamedemo.custom.ExpandableHeightGridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

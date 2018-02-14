@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.gamedemo.R;
 import com.gamedemo.SingleTon;
 import com.gamedemo.adapters.HomeRecyclerAdapter;
-import com.gamedemo.adapters.OnItemClick;
+import com.gamedemo.interfaces.OnItemClick;
 import com.gamedemo.objs.HomeObj;
 import com.gamedemo.utils.ConnectToServer;
 
@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment {
         adapter.SetOnItemClickListener(new OnItemClick() {
             @Override
             public void onItemClick(View view, int position) {
-                initNoteFragment(adapter.getItem(position).urlNote);
+                initNoteFragment(adapter.getItem(position));
             }
         });
 
@@ -72,33 +72,18 @@ public class HomeFragment extends Fragment {
     }
 
     public void getResult(){
-        Cursor c = SingleTon.getDb().rawQuery("SELECT titulo,resumen,urlNote,urlImg,color,backImg,urlYtb,date,rootPage,dateLong"
-                + " FROM Home ORDER BY dateLong DESC", null);
-        if(c.moveToFirst()){
-            do{
-                HomeObj hn = new HomeObj();
-                hn.titulo = c.getString(0);
-                hn.resumen = c.getString(1);
-                hn.urlNote = c.getString(2);
-                hn.urlImg = c.getString(3);
-                hn.color = c.getString(4);
-                hn.backImg = c.getString(5);
-                hn.urlYtb = c.getString(6);
-                hn.date = c.getString(7);
-                hn.rootPage = c.getString(8);
-                hn.dateLong = c.getLong(9);
-                homeObjs.add(hn);
-            } while(c.moveToNext());
-        }
-        c.close();
+        homeObjs = SingleTon.getBdh().getHomeNotes();
         adapter.updateAdapter(homeObjs);
         SingleTon.dissmissLoad();
     }
 
-    private void initNoteFragment(String url){
+    private void initNoteFragment(HomeObj arg){
         Bundle bundle = new Bundle();
         bundle.putInt("lay", lay);
-        bundle.putString("url", url);
+        bundle.putInt("id", arg.id);
+        bundle.putString("url", arg.urlNote);
+        bundle.putString("title", arg.titulo);
+        bundle.putString("root", arg.rootPage);
         NoteFragment noteFragment = new NoteFragment();
         noteFragment.setArguments(bundle);
         SingleTon.setCurrentFragment(noteFragment);

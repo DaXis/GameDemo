@@ -1,6 +1,7 @@
 package com.gamedemo.utils;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import com.gamedemo.SingleTon;
 
@@ -15,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class ParseHome {
 
@@ -112,8 +115,7 @@ public class ParseHome {
         if(!e6.isEmpty()){
             date = e6.get(0).text();
             date = parseDate(date);
-
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             try {
                 Date dateF = format.parse(date);
                 dateLong = dateF.getTime();
@@ -127,21 +129,40 @@ public class ParseHome {
     }
 
     public String parseDate(String time) {
-        String inputPattern = "dd/MM/yyyy hh:mm a";
+        /*String inputPattern = "dd/MM/yyyy hh:mm a";
         String outputPattern = "dd/MM/yyyy HH:mm ";
         SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
         SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
 
         Date date = null;
-        String str = null;
 
         try {
             date = inputFormat.parse(time);
-            str = outputFormat.format(date);
+            time = outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
+        time = dateFormat(getDateFromString(time).getTime());
+
+        return time;
+    }
+
+    public static Date getDateFromString(String fecha){
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ROOT);
+        Date date = null;
+        try {
+            date = format.parse(fecha);
+            //System.out.println(date);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return str;
+        return date;
+    }
+
+    private static String dateFormat(long time){
+        String date = "";
+        date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(time));
+        return date;
     }
 
     //TODO level up
@@ -220,15 +241,35 @@ public class ParseHome {
 
         resum = resum.replace("'","''");
 
-        long time = System.currentTimeMillis();
-        date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date(time));
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        try {
-            Date dateF = format.parse(date);
-            dateLong = dateF.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        final Elements e4 = doc.select("div p.time time");
+        if(e4.toString().length() > 0){
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = null;
+            String time = e4.get(0).attr("datetime");
+            time = time.replace("T", " ");
+            time = time.replace("+00:00", "");
+            try {
+                date = format.parse(time);
+                dateLong = date.getTime();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                dateFormat.setTimeZone(TimeZone.getTimeZone("America/Mexico_City"));
+                this.date = dateFormat.format(new Date(dateLong));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            long time = System.currentTimeMillis();
+            date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date(time));
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            try {
+                Date dateF = format.parse(date);
+                dateLong = dateF.getTime();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     private String getRealUrl(String clear){
