@@ -55,15 +55,16 @@ public class ConnectToServer {
         @Override
         protected String doInBackground(Object[]... params) {
             aux = params[0];
-            String[] urls = (String[])aux[0];
+            //String[] urls = (String[])aux[0];
+            ArrayList<String> urls = (ArrayList<String>)aux[0];
             String url;
 
             Object object = aux[2];
             if(object.getClass() == HomeFragment.class){
                 htmlToJson = new ParseHome();
 
-                for(int i = 0; i < urls.length; i++){
-                    url = urls[i];
+                for(int i = 0; i < urls.size(); i++){
+                    url = urls.get(i);
                     htmlToJson.initParse(url);
                 }
             }/* else if(object.getClass() == NoteFragment.class){
@@ -97,11 +98,12 @@ public class ConnectToServer {
         @Override
         protected ParseNote doInBackground(Object[]... params) {
             aux = params[0];
-            String[] urls = (String[])aux[0];
+            //String[] urls = (String[])aux[0];
+            ArrayList<String> urls = (ArrayList<String>)aux[0];
 
             Object object = aux[2];
             if(object.getClass() == NoteFragment.class){
-                parseNote = new ParseNote(urls[0], true, (int)aux[3]);
+                parseNote = new ParseNote(urls.get(0), true, (int)aux[3]);
                 return parseNote;
             }
 

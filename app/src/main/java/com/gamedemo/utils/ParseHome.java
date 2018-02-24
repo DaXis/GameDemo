@@ -102,8 +102,12 @@ public class ParseHome {
             }
         }
 
+        //Log.d("e4 "+title, "---> "+e4.toString());
         if(!e4.isEmpty()){
-            urlYouTube = e4.get(0).attr("src").toString().replace("//", "");
+            //Log.d("youtube ", e4.get(0).attr("src").toString());
+            //urlYouTube = e4.get(0).attr("src").toString().replace("//", "");
+            //Log.d("youtube ", e4.get(0).attr("src").toString());
+            urlYouTube = e4.get(0).attr("src").toString();
         }
 
         if(!e5.isEmpty()){

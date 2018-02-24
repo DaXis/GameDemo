@@ -1,4 +1,4 @@
-package com.gamedemo.adapters;
+package com.gamedemo.fragments;
 
 import android.os.Bundle;
 

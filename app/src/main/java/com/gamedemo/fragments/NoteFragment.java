@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -35,13 +36,14 @@ import android.widget.VideoView;
 
 import com.gamedemo.R;
 import com.gamedemo.SingleTon;
+import com.gamedemo.custom.CustomTextView;
 import com.gamedemo.custom.ExpandableHeightGridView;
+import com.gamedemo.dialogs.DownloadDialog;
 import com.gamedemo.utils.BlurEffect;
 import com.gamedemo.utils.ConnectToServer;
 import com.gamedemo.adapters.GalleryAdapter;
+import com.gamedemo.utils.DownloadHelper;
 import com.gamedemo.utils.ParseNote;
-import com.gamedemo.adapters.YoutubeFragment;
-import com.gamedemo.utils.TextFileMannager;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.squareup.picasso.Picasso;
@@ -51,8 +53,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,6 +76,8 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
     //private static TwitterActivities twitter;
     //private static FacebookActivities facebook;
     //private WebView content;
+    //private static DownloadHelper downloadHelper;
+    private static ParseNote parseNote;
     //private static DownloadHelper downloadHelper;
 
     @Override
@@ -122,6 +124,9 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         View rootView = inflater.inflate(R.layout.note_frag, container, false);
         this.rootView = rootView;
 
+        /*if(downloadHelper == null)
+            downloadHelper = new DownloadHelper(SingleTon.getCurrentActivity());*/
+
         Log.d("note url", url);
         SingleTon.showLoadDialog(this.getFragmentManager());
         if(!SingleTon.getBdh().getNota(id)){
@@ -133,8 +138,7 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         } else {
             if(new File(SingleTon.getCacheCarpet(), ""+id).exists()){
                 Log.d("offline exist "+id, ""+true);
-                ParseNote parseNote = new ParseNote(url, false, id);
-                getResult(parseNote);
+                new loadNote().executeOnExecutor(SingleTon.getsExecutor());
             } else {
                 if(SingleTon.isOnline()){
                     String[] urls = {url};
@@ -208,66 +212,39 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
         }
     }
 
-    //TODO OnClick
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-
-        }
-    }
-
-    /*private void downloadDialog(String url, String directory){
-        DownloadDialog downloadDialog = DownloadDialog.newInstance(downloadHelper,url, directory);
-        downloadDialog.setCancelable(false);
-        downloadDialog.show(getSupportFragmentManager(), "download dialog");
-    }*/
-
-    /*public class loadNote extends AsyncTask<Void, Void, Void> {
+    public class loadNote extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            nh = new NoteHelper(url);
-            if(!nh.initParse())
-                initInternetFaileDialog();
-
+            parseNote = new ParseNote(url, false, id);
             return null;
         }
 
         protected void onPostExecute (Void result){
-            if(!NotaDemo.this.isDestroyed()){
-                if(nh.getNote().size() > 2){
-                    //generateNoteOnSD(titulo, nh.getNote().get(2).getNote());
-                    Memory.getBdh().insertIntoNote(titulo, nh.getNote().get(2).getNote(),
-                            nh.getNote().get(2).getHtml());
+            getResult(parseNote);
+        }
+    }
 
-                    reparseNote(nh.getNote().get(2).getNote());
-                    putViews();
-                    parseToGetGallery(nh.getNote().get(2).getNote());
-                    initImageAdapter();
-
-                    if(progress.getVisibility() == View.VISIBLE)
-                        progress.setVisibility(View.GONE);
-
-                    if(menuImg.getVisibility() == View.GONE)
-                        menuImg.setVisibility(View.VISIBLE);
+    //TODO OnClick
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.close_button:
+                if (fullImg.getVisibility() == View.VISIBLE) {
+                    fullImg.setVisibility(View.GONE);
                 }
-            }
+                break;
+            case R.id.download:
+                String url = urls.get(viewPager.getCurrentItem());
+                downloadDialog(url, SingleTon.getDownCarpet().getAbsolutePath());
+                break;
         }
-    }*/
+    }
 
-    private String getSaveNote(String title){
-        String note = null;
-
-        String[] args = {title};
-        Cursor c = SingleTon.getDb().rawQuery("SELECT nota"
-                + " FROM Notes WHERE titulo LIKE ?", args);
-        if(c.moveToFirst()){
-            do{
-                note = c.getString(0);
-            } while(c.moveToNext());
-        }
-        c.close();
-
-        return note;
+    private void downloadDialog(String url, String directory){
+        DownloadHelper downloadHelper = new DownloadHelper(SingleTon.getCurrentActivity());
+        DownloadDialog downloadDialog = DownloadDialog.newInstance(downloadHelper,url, directory);
+        downloadDialog.setCancelable(false);
+        downloadDialog.show(getFragmentManager(), "download dialog");
     }
 
     private boolean isFavoriteNote(String title){
@@ -287,23 +264,6 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
             favorite = true;
 
         return favorite;
-    }
-
-    public void generateNoteOnSD(String sFileName, String sBody){
-        try{
-            File root = SingleTon.getCacheCarpet();
-            if (!root.exists()) {
-                root.mkdirs();
-            }
-            File file = new File(root, sFileName);
-            FileWriter writer = new FileWriter(file);
-            writer.append(sBody);
-            writer.flush();
-            writer.close();
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
     }
 
     public void reparseNote(String html){
@@ -641,14 +601,16 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
 
     private void parseToGetFBPost(String html){
         if(html.contains("href")){
-            TextView txt = new TextView(getActivity());
+            CustomTextView txt = new CustomTextView(getActivity());
             txt.setText(Html.fromHtml(html));
             txt.setPadding(15, 10, 15, 10);
+            //txt.setTextSize(15);
             scrollView.addView(txt);
         } else {
-            TextView txt = new TextView(getActivity());
+            CustomTextView txt = new CustomTextView(getActivity());
             txt.setText("Post de Facebook");
             txt.setPadding(15,10,15,10);
+            //txt.setTextSize(15);
             scrollView.addView(txt);
         }
     }
@@ -658,15 +620,17 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
             if(nota.contains("<span class")){
                 String note = reparseToText(nota);
                 if(note != null){
-                    TextView txt = new TextView(getActivity());
+                    CustomTextView txt = new CustomTextView(getActivity());
                     txt.setText(Html.fromHtml(note));
                     txt.setPadding(15,10,15,10);
+                    //txt.setTextSize(15);
                     scrollView.addView(txt);
                 }
             } else {
-                TextView txt = new TextView(getActivity());
+                CustomTextView txt = new CustomTextView(getActivity());
                 txt.setText(Html.fromHtml(nota));
                 txt.setPadding(15,10,15,10);
+                //txt.setTextSize(15);
                 scrollView.addView(txt);
             }
         }
@@ -709,18 +673,20 @@ public class NoteFragment extends Fragment implements View.OnClickListener, YouT
             if(nota.contains("<span class")){
                 String note = reparseToText(nota);
                 if(note != null){
-                    TextView txt = new TextView(getActivity());
+                    CustomTextView txt = new CustomTextView(getActivity());
                     txt.setText(Html.fromHtml(note));
                     txt.setPadding(15,10,15,10);
+                    //txt.setTextSize(15);
                     scrollView.addView(txt);
                 }
             } else {
                 /*Elements e1 = doc.select("img.size-full");
                 doc.*/
                 if(!addPic){
-                    TextView txt = new TextView(getActivity());
+                    CustomTextView txt = new CustomTextView(getActivity());
                     txt.setText(Html.fromHtml(nota));
                     txt.setPadding(15,10,15,10);
+                    //txt.setTextSize(15);
                     scrollView.addView(txt);
                 }
             }

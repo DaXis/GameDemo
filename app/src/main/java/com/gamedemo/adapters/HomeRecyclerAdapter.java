@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,8 @@ import android.widget.TextView;
 
 import com.gamedemo.R;
 import com.gamedemo.SingleTon;
+import com.gamedemo.custom.GifImageView;
+import com.gamedemo.fragments.YoutubeFragment;
 import com.gamedemo.interfaces.OnItemClick;
 import com.gamedemo.objs.HomeObj;
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -32,9 +33,10 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     private static ArrayList<HomeObj> homeNote = new ArrayList<HomeObj>();
     private Activity activity;
     private FragmentManager fragmentManager;
-    private String videoID;
+    //private String videoID;
     private static OnItemClick onItemClick;
     private int[] colors;
+    private static int id;
 
     public HomeRecyclerAdapter(Activity activity, ArrayList<HomeObj> homeNote, FragmentManager fragmentManager) {
         this.activity = activity;
@@ -58,6 +60,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if(homeNote.get(position) != null){
+            id = position;
 
             holder.text.setText(Html.fromHtml(homeNote.get(position).titulo));
             holder.content.setText(homeNote.get(position).resumen);
@@ -65,10 +68,16 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             holder.time.setText(homeNote.get(position).date);
 
             if(homeNote.get(position).backImg.length() > 0){
-                if(homeNote.get(position).bitmap == null)
-                    setBitmap(homeNote.get(position).backImg, holder.ll, position);
-                else
-                    holder.ll.setBackground(homeNote.get(position).bitmap);
+                if(homeNote.get(position).backImg.endsWith(".gif")) {
+                    //holder.gifBg.setVisibility(View.VISIBLE);
+                    //holder.gifBg.setGifImageUri(homeNote.get(position).backImg);
+                } else {
+                    holder.gifBg.setVisibility(View.GONE);
+                    if(homeNote.get(position).bitmap == null)
+                        setBitmap(homeNote.get(position).backImg, holder.ll, position);
+                    else
+                        holder.ll.setBackground(homeNote.get(position).bitmap);
+                }
             } else {
                 if(homeNote.get(position).color.length() > 1)
                     holder.ll.setBackgroundColor(Color.parseColor(colorIssue(homeNote.get(position).color)));
@@ -88,7 +97,8 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
                     final FragmentTransaction ft = fragmentManager.beginTransaction();
                     final YoutubeFragment youtube = new YoutubeFragment();
                     holder.youLay.setVisibility(View.VISIBLE);
-                    videoID = genVideoID(homeNote.get(position).urlYtb);
+                    //videoID = genVideoID(homeNote.get(position).urlYtb);
+                    //videoID = homeNote.get(position).getYtbId();
                     ft.add(R.id.youtube, youtube).commit();
                     youtube.initialize(activity.getResources().getString(R.string.API_KEY), this);
                 }
@@ -119,18 +129,21 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             return color;
     }
 
-    private String genVideoID(String url){
+    /*private String genVideoID(String url){
+        url = url.replace("//","");
         String[] aux = url.split("/");
         String[] aux0 = aux[2].split("[?]");
         String key = aux0[0].replace("null","");
         Log.v("youtube video key", ""+key);
         return key;
-    }
+    }*/
 
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
-        if(!b)
-            youTubePlayer.loadVideo(videoID);
+        if(!b) {
+            youTubePlayer.loadVideo(homeNote.get(id).getYtbId());
+            //youTubePlayer.loadVideo(videoID);
+        }
     }
 
     @Override
@@ -149,6 +162,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         public final TextView text, content, fuente, time;
         public final ImageView image;
         public final FrameLayout youLay;
+        public final GifImageView gifBg;
 
         public ViewHolder(View view){
             super(view);
@@ -159,6 +173,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             time = (TextView)view.findViewById(R.id.time);
             image = (ImageView)view.findViewById(R.id.image);
             youLay = (FrameLayout)view.findViewById(R.id.youtube);
+            gifBg = (GifImageView)view.findViewById(R.id.gifBg);
             view.setOnClickListener(this);
         }
 

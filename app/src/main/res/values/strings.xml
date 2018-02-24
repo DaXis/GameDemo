@@ -30,5 +30,11 @@
     <string name="user_ap_ma">Apellido materno</string>
     <string name="user_tel">Teléfono</string>
     <string name="user_nick">Alias</string>
+    <string name="confirm_pass_hint">Confirma tu contraseña</string>
+    <string name="config_schedule">Indicanos en que intervalo de tiempo prefieres que busquemos actualizaciones de noticias.</string>
+    <string name="schedule_select">No buscar</string>
+    <string name="hint_schedule">Intervalo de actualización</string>
+    <string name="hint_pages">Paginas de noticias</string>
+    <string name="config_pages">Dinos en que paginas prefieres que busquemos tus noticias favoritas.</string>
 
 </resources>

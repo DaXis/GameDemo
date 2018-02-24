@@ -73,6 +73,56 @@ public class DBHelper extends SQLiteOpenHelper {
         return homeObjs;
     }
 
+    public ArrayList<HomeObj> getAtomixNotes(){
+        ArrayList<HomeObj> homeObjs = new ArrayList<>();
+        Cursor c = SingleTon.getDb().rawQuery("SELECT titulo,resumen,urlNote,urlImg,color,backImg,urlYtb,date,rootPage,dateLong, id"
+                + " FROM Home WHERE rootPage = 'Atomix' ORDER BY date DESC", null);
+        if(c.moveToFirst()){
+            do{
+                HomeObj hn = new HomeObj();
+                hn.titulo = c.getString(0);
+                hn.resumen = c.getString(1);
+                hn.urlNote = c.getString(2);
+                hn.urlImg = c.getString(3);
+                hn.color = c.getString(4);
+                hn.backImg = c.getString(5);
+                hn.urlYtb = c.getString(6);
+                hn.date = c.getString(7);
+                hn.rootPage = c.getString(8);
+                hn.dateLong = c.getLong(9);
+                hn.id = c.getInt(10);
+                homeObjs.add(hn);
+            } while(c.moveToNext());
+        }
+        c.close();
+        return homeObjs;
+    }
+
+    public ArrayList<HomeObj> getLvUpNotes(){
+        ArrayList<HomeObj> homeObjs = new ArrayList<>();
+        Cursor c = SingleTon.getDb().rawQuery("SELECT titulo,resumen,urlNote,urlImg,color,backImg,urlYtb,date,rootPage,dateLong, id"
+                + " FROM Home WHERE rootPage = 'LevelUp' ORDER BY date DESC", null);
+        if(c.moveToFirst()){
+            do{
+                HomeObj hn = new HomeObj();
+                hn.titulo = c.getString(0);
+                hn.resumen = c.getString(1);
+                hn.urlNote = c.getString(2);
+                hn.urlImg = c.getString(3);
+                hn.color = c.getString(4);
+                hn.backImg = c.getString(5);
+                hn.urlYtb = c.getString(6);
+                hn.date = c.getString(7);
+                hn.rootPage = c.getString(8);
+                hn.dateLong = c.getLong(9);
+                hn.id = c.getInt(10);
+                homeObjs.add(hn);
+            } while(c.moveToNext());
+        }
+        c.close();
+        return homeObjs;
+    }
+
     public void insertToNota(int id, String url, String titulo, String root, String path){
         SingleTon.getDb().execSQL("INSERT INTO Nota(id, url, titulo, root, path) " +
                 "VALUES("+id+",'"+url+"','"+titulo+"','"+root+"','"+path+"')");

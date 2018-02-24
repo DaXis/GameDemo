@@ -5,9 +5,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -70,6 +72,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
 
         editUser = (EditText)rootView.findViewById(R.id.editUser);
         editPass = (EditText)rootView.findViewById(R.id.editPass);
+        editPass.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    SingleTon.hideKeyboard(LoginFragment.this.getView());
+                    checkLogin();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
 
         loginBtn = (Button)rootView.findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(this);
@@ -89,6 +103,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             case R.id.loginBtn:
                 if(editUser.getText().length() > 0){
                     if(editPass.getText().length() > 0){
+                        SingleTon.hideKeyboard(LoginFragment.this.getView());
                         checkLogin();
                     } else
                         genToast("Introduce tu contraseña");
@@ -132,9 +147,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         SingleTon.showLoadDialog(getFragmentManager());
         String url = "http://daxissoft.com/game/check_login.php";
         ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("password", editPass.getText().toString()));
         nameValuePairs.add(new BasicNameValuePair("email", editUser.getText().toString()));
-
+        nameValuePairs.add(new BasicNameValuePair("pass", editPass.getText().toString()));
         ConnectToServer connectToServer = new ConnectToServer(url, nameValuePairs, 3, this);
     }
 
@@ -142,32 +156,32 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         try {
             JSONObject jsonObject = new JSONObject(json);
             if(jsonObject.getString("status").equals("ok")){
-                JSONArray jsonArray = jsonObject.getJSONArray("data");
-                JSONObject user = jsonArray.getJSONObject(0);
-                UserObj userObj = new UserObj();
-                userObj.id = user.getInt("id");
-                userObj.username = user.getString("username");
-                userObj.nombre = user.getString("nombre");
-                userObj.apellidos = user.getString("apellidos");
-                userObj.email = user.getString("email");
-                userObj.telefono = user.getString("telefono");
-                userObj.googleId = user.getString("googleId");
-                userObj.googleOtr = user.getString("googleOtr");
-                userObj.image = user.getString("image");
-
-                SingleTon.getEditor().putBoolean("login", true);
-                SingleTon.getEditor().putString("json_login",json);
-                SingleTon.getEditor().commit();
-
-                SingleTon.setUserObj(userObj);
-
                 genToast(jsonObject.getString("message"));
 
-                if(SingleTon.getUserObj().image.length() > 0){
-                    Picasso.with(getActivity()).load(SingleTon.getUserObj().image).into(SingleTon.getProfile());
-                    Picasso.with(getActivity()).setIndicatorsEnabled(true);
+                UserObj userObj = new UserObj();
+                userObj.id = jsonObject.getInt("id");
+                userObj.email = jsonObject.getString("email");
+                userObj.name = jsonObject.getString("name");
+                userObj.ap = jsonObject.getString("ap");
+                userObj.am = jsonObject.getString("am");
+                userObj.alias = jsonObject.getString("alias");
+                userObj.phone = jsonObject.getString("phone");
+                userObj.image = jsonObject.getString("image");
+                userObj.xboxGT = jsonObject.getString("xboxGT");
+                userObj.psn = jsonObject.getString("psn");
+                userObj.fc = jsonObject.getString("fc");
+                SingleTon.setUserObj(userObj);
+
+                if(SingleTon.getUserObj().image != null){
+                    if(SingleTon.getUserObj().image.length() > 0){
+                        Picasso.with(getActivity()).load(SingleTon.getUserObj().image).into(SingleTon.getProfile());
+                        Picasso.with(getActivity()).setIndicatorsEnabled(true);
+                    }
                 }
-                SingleTon.getUsername().setText(SingleTon.getUserObj().username);
+
+                SingleTon.savePreferences("login", true);
+                SingleTon.savePreferences("json_login", json);
+                SingleTon.getUsername().setText(SingleTon.getUserObj().alias);
                 SingleTon.getEmail().setText(SingleTon.getUserObj().email);
                 SingleTon.getEmail().setVisibility(View.VISIBLE);
                 SingleTon.getLogin().setTitle("Cerrar Sesión");

@@ -64,7 +64,15 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         SingleTon.showLoadDialog(this.getFragmentManager());
-        String[] urls = {"http://atomix.vg/", "http://www.levelup.com/noticias"};
+        ArrayList<String> urls = new ArrayList<>();
+
+        boolean atomix_check = SingleTon.getSettings().getBoolean("atomix_check", true),
+                lvup_check = SingleTon.getSettings().getBoolean("lvup_check", true);
+        if(atomix_check)
+            urls.add("http://atomix.vg/");
+        if(lvup_check)
+            urls.add("http://www.levelup.com/noticias");
+
         Object[] args = {urls,0,this};
         ConnectToServer connectToServer = new ConnectToServer(args);
 
@@ -72,7 +80,16 @@ public class HomeFragment extends Fragment {
     }
 
     public void getResult(){
-        homeObjs = SingleTon.getBdh().getHomeNotes();
+        boolean atomix_check = SingleTon.getSettings().getBoolean("atomix_check", true),
+                lvup_check = SingleTon.getSettings().getBoolean("lvup_check", true);
+
+        if(atomix_check && lvup_check)
+            homeObjs = SingleTon.getBdh().getHomeNotes();
+        else if(atomix_check)
+            homeObjs = SingleTon.getBdh().getAtomixNotes();
+        else if(lvup_check)
+            homeObjs = SingleTon.getBdh().getLvUpNotes();
+
         adapter.updateAdapter(homeObjs);
         SingleTon.dissmissLoad();
     }

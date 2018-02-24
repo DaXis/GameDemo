@@ -12,7 +12,7 @@
         android:layout_centerHorizontal="true"
         android:src="@drawable/splash"/>
 
-    <TextView
+    <com.gamedemo.custom.CustomTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"

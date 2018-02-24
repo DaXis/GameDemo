@@ -10,7 +10,7 @@
         android:layout_weight="0.3"
         android:background="@drawable/header">
 
-        <TextView
+        <com.gamedemo.custom.CustomTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -38,13 +38,14 @@
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp">
 
-            <EditText
+            <com.gamedemo.custom.OtherCustomEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/editUser"
                 android:hint="@string/edit_user_hint"
-                android:imeOptions="actionGo"
-                android:maxLines="1"/>
+                android:maxLines="1"
+                android:imeOptions="flagNoEnterAction"
+                android:descendantFocusability="beforeDescendants"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -56,19 +57,19 @@
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp">
 
-            <EditText
+            <com.gamedemo.custom.OtherCustomEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:ems="10"
                 android:id="@+id/editPass"
                 android:hint="@string/edit_pass_hint"
-                android:imeOptions="actionGo"
+                android:imeOptions="actionSend"
                 android:maxLines="1"/>
 
         </android.support.design.widget.TextInputLayout>
 
-        <Button
+        <com.gamedemo.custom.CustomButton
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/login_btn"
@@ -77,7 +78,7 @@
             android:layout_marginTop="20dp"
             android:background="@drawable/login_btn_selector"/>
 
-        <TextView
+        <com.gamedemo.custom.CustomTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/forget_pass"
@@ -86,7 +87,7 @@
             android:layout_marginTop="30dp"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-        <TextView
+        <com.gamedemo.custom.CustomTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/new_user"

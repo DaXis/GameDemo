@@ -15,13 +15,14 @@ import java.io.UnsupportedEncodingException;
 
 public class TextFileMannager {
 	
-	private static String data="", p = "";
+	//private static String data="", p = "";
 	
 	public TextFileMannager(){
 		
 	}
 
     public static String loadFromResource(Context ctx,  int resource){
+        String data = "", p = "";
 	     final InputStream rr = ctx.getResources().openRawResource(resource);
 	     try {
 			final BufferedReader e0 = new BufferedReader(new InputStreamReader(rr, "UTF-8"));
@@ -40,11 +41,12 @@ public class TextFileMannager {
 	     return data;
     }
     
-    public String getData(){
+    /*public String getData(){
     	return data.replace("null", "");
-    }
+    }*/
     
     public static String loadFromFile(File file){
+	    String data = "";
 	    	try {
 	    	    @SuppressWarnings("resource")
 				BufferedReader br = new BufferedReader(new FileReader(file));

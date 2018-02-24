@@ -42,18 +42,18 @@ public class SplashActivity extends Activity {
         try {
             JSONObject jsonObject = new JSONObject(json);
             if(jsonObject.getString("status").equals("ok")){
-                JSONArray jsonArray = jsonObject.getJSONArray("data");
-                JSONObject user = jsonArray.getJSONObject(0);
                 UserObj userObj = new UserObj();
-                userObj.id = user.getInt("id");
-                userObj.username = user.getString("username");
-                userObj.nombre = user.getString("nombre");
-                userObj.apellidos = user.getString("apellidos");
-                userObj.email = user.getString("email");
-                userObj.telefono = user.getString("telefono");
-                userObj.googleId = user.getString("googleId");
-                userObj.googleOtr = user.getString("googleOtr");
-                userObj.image = user.getString("image");
+                userObj.id = jsonObject.getInt("id");
+                userObj.email = jsonObject.getString("email");
+                userObj.name = jsonObject.getString("name");
+                userObj.ap = jsonObject.getString("ap");
+                userObj.am = jsonObject.getString("am");
+                userObj.alias = jsonObject.getString("alias");
+                userObj.phone = jsonObject.getString("phone");
+                userObj.image = jsonObject.getString("image");
+                userObj.xboxGT = jsonObject.getString("xboxGT");
+                userObj.psn = jsonObject.getString("psn");
+                userObj.fc = jsonObject.getString("fc");
 
                 SingleTon.getEditor().putBoolean("login", true);
                 SingleTon.getEditor().putString("json_login",json);

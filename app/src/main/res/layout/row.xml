@@ -10,117 +10,129 @@
         card_view:cardElevation="4dp"
         android:layout_margin="10dp">
 
-        <LinearLayout
-            android:id="@+id/conteiner"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:background="@android:color/transparent"
-            android:backgroundTintMode="screen">
+            android:layout_height="match_parent">
 
-            <FrameLayout
+            <com.gamedemo.custom.GifImageView
+                android:id="@+id/gifBg"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="5dp"
-                android:layout_gravity="center_horizontal"
-                android:id="@+id/main_frame">
-
-                <ImageView
-                    android:id="@+id/image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/perfil"
-                    android:layout_gravity="center"
-                    android:scaleType="fitXY"
-                    android:layout_margin="1dp"
-                    android:visibility="gone" />
-
-                <FrameLayout
-                    android:id="@+id/youtube"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:layout_margin="1dp"/>
-
-            </FrameLayout>
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
 
             <LinearLayout
+                android:id="@+id/conteiner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:background="@android:color/transparent"
+                android:backgroundTintMode="screen">
 
-                <TextView
-                    android:id="@+id/titulo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Medium Text"
-                    android:textColor="#ffffff"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/main_frame">
 
-                <TextView
-                    android:id="@+id/contenido"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TextView"
-                    android:textColor="#ffffff"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginBottom="10dp" />
+                    <ImageView
+                        android:id="@+id/image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/perfil"
+                        android:layout_gravity="center"
+                        android:scaleType="fitXY"
+                        android:layout_margin="1dp"
+                        android:visibility="gone" />
+
+                    <FrameLayout
+                        android:id="@+id/youtube"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:layout_margin="1dp"/>
+
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginLeft="10dp">
+                    android:orientation="vertical" >
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="0.5"
+                    <com.gamedemo.custom.CustomTextView
+                        android:id="@+id/titulo"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text=""
-                        android:id="@+id/time"
-                        android:layout_gravity="left"
-                        android:gravity="left"
-                        android:textColor="@color/text_icons"
+                        android:text="Medium Text"
+                        android:textColor="#ffffff"
                         android:textStyle="bold"
-                        android:layout_margin="5dp"
-                        android:shadowColor="@color/TransparentGrey"
-                        android:shadowDx="5"
-                        android:shadowDy="5"
-                        android:shadowRadius="0.05"/>
+                        android:gravity="center"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="0.5"
+                    <com.gamedemo.custom.CustomTextView
+                        android:id="@+id/contenido"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text=""
-                        android:id="@+id/fuente"
-                        android:layout_gravity="right"
-                        android:gravity="right"
-                        android:textColor="@color/text_icons"
-                        android:textStyle="bold"
-                        android:shadowColor="@color/TransparentGrey"
-                        android:shadowDx="5"
-                        android:shadowDy="5"
-                        android:shadowRadius="0.05"
-                        android:layout_marginRight="5dp"/>
+                        android:text="TextView"
+                        android:textColor="#ffffff"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginBottom="10dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="10dp">
+
+                        <com.gamedemo.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:text=""
+                            android:id="@+id/time"
+                            android:layout_gravity="left"
+                            android:gravity="left"
+                            android:textColor="@color/text_icons"
+                            android:textStyle="bold"
+                            android:layout_margin="5dp"
+                            android:shadowColor="@color/TransparentGrey"
+                            android:shadowDx="5"
+                            android:shadowDy="5"
+                            android:shadowRadius="0.05"/>
+
+                        <com.gamedemo.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:text=""
+                            android:id="@+id/fuente"
+                            android:layout_gravity="right"
+                            android:gravity="right"
+                            android:textColor="@color/text_icons"
+                            android:textStyle="bold"
+                            android:shadowColor="@color/TransparentGrey"
+                            android:shadowDx="5"
+                            android:shadowDy="5"
+                            android:shadowRadius="0.05"
+                            android:layout_marginRight="5dp"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+        </FrameLayout>
 
 </android.support.v7.widget.CardView>
 

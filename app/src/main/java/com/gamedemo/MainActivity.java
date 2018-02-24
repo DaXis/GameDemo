@@ -13,21 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.gamedemo.dialogs.LoadDialog;
 import com.gamedemo.fragments.ConfigFragment;
 import com.gamedemo.fragments.HomeFragment;
 import com.gamedemo.fragments.LoginFragment;
-import com.gamedemo.objs.UserObj;
-import com.gamedemo.utils.ConnectToServer;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,16 +28,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private DrawerLayout drawerLayout;
     private FrameLayout contenLay;
     private HomeFragment homeFragment;
     private ConfigFragment configFragment;
     private LoginFragment loginFragment;
-    private CircleImageView profile;
+    private ImageView profile;
     private TextView username, email;
     private static final String DB_PATH = "/data/data/com.gamedemo/databases/";
 
@@ -53,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        SingleTon.setCurrenActivity(this);
         setToolbar();
         initView();
     }
@@ -104,19 +94,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         View view = navigationView.getHeaderView(0);
-        profile = (CircleImageView)view.findViewById(R.id.circle_image);
+        profile = (ImageView) view.findViewById(R.id.circle_image);
         username = (TextView)view.findViewById(R.id.username);
         email = (TextView)view.findViewById(R.id.email);
         SingleTon.setProfile(profile);
         SingleTon.setUsername(username);
         SingleTon.setEmail(email);
+        email.setOnClickListener(this);
 
         if(SingleTon.getUserObj() != null){
             if(SingleTon.getUserObj().image.length() > 0){
                 Picasso.with(this).load(SingleTon.getUserObj().image).into(profile);
                 Picasso.with(this).setIndicatorsEnabled(true);
             }
-            username.setText(SingleTon.getUserObj().username);
+            username.setText(SingleTon.getUserObj().alias);
             email.setText(SingleTon.getUserObj().email);
             email.setVisibility(View.VISIBLE);
             SingleTon.getLogin().setTitle("Cerrar Sesión");
@@ -136,6 +127,10 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        if(menuItem.getItemId() == R.id.nav_home){
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                            initHomeFragment();
+                        }
                         if(menuItem.getItemId() == R.id.config){
                             drawerLayout.closeDrawer(GravityCompat.START);
                             initConfigFragment();
@@ -226,16 +221,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout(){
-        SingleTon.getEditor().putBoolean("login", false);
-        SingleTon.getEditor().putString("json_login","");
-        SingleTon.getEditor().commit();
+        SingleTon.savePreferences("login", false);
+        SingleTon.savePreferences("json_login", "");
         SingleTon.getLogin().setTitle("Iniciar Sesión");
         email.setVisibility(View.INVISIBLE);
         email.setText("");
         profile.setImageResource(R.drawable.perfil);
         username.setText("Invitado");
 
-        genToast(SingleTon.getUserObj().username+" a cerrado sesión.");
+        genToast(SingleTon.getUserObj().alias+" a cerrado sesión.");
 
         SingleTon.setUserObj(null);
     }
@@ -278,4 +272,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.email:
+                break;
+        }
+    }
 }

@@ -36,7 +36,9 @@ public class ParseNote {
 
 	public boolean initParseOffline(int id){
 		final Document doc;
-		doc = Jsoup.parse(TextFileMannager.loadFromFile(new File(SingleTon.getCacheCarpet(), ""+id)));
+		String html = TextFileMannager.loadFromFile(new File(SingleTon.getCacheCarpet(), ""+id));
+		//Log.d("atomix html --->", ""+html.length());
+		doc = Jsoup.parse(html);
 		final Elements e0 = doc.select("div.twelve");
 		if(!e0.isEmpty()){
 			String aux1 = e0.get(2).html().replace("'","''");
@@ -80,7 +82,9 @@ public class ParseNote {
 
 	public boolean initLvParseOffline(int id){
 		final Document doc;
-		doc = Jsoup.parse(TextFileMannager.loadFromFile(new File(SingleTon.getCacheCarpet(), ""+id)));
+		String html = TextFileMannager.loadFromFile(new File(SingleTon.getCacheCarpet(), ""+id));
+		//Log.d("atomix html --->", ""+html.length());
+		doc = Jsoup.parse(html);
 		final Elements e0 = doc.select("#content");
 		final Elements e1 = doc.select("div.content iframe.youtubeVideo");
 		if(!e0.isEmpty()){

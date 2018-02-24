@@ -20,7 +20,7 @@
             card_view:cardElevation="4dp"
             android:foregroundGravity="center_vertical">
 
-            <TextView
+            <com.gamedemo.custom.CustomTextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

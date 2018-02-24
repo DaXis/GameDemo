@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class RegisterFragment extends Fragment implements View.OnClickListener{
 
     private int lay;
-    private EditText email, name, apPa, apMa, nick, tel, editPass;
+    private EditText email, name, apPa, apMa, nick, tel, editPass, confirmPass;
     private Button regis;
 
     @Override
@@ -56,6 +56,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
         nick = (EditText)rootView.findViewById(R.id.nick);
         tel = (EditText)rootView.findViewById(R.id.tel);
         editPass = (EditText)rootView.findViewById(R.id.editPass);
+        confirmPass = (EditText)rootView.findViewById(R.id.confirmPass);
 
         regis = (Button)rootView.findViewById(R.id.regisBtn);
         regis.setOnClickListener(this);
@@ -70,7 +71,10 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
                 if(email.getText().length() > 0){
                     if(nick.getText().length() > 0){
                         if(editPass.getText().length() > 0){
-                            initConnection();
+                            if(confirmPass.getText().toString().equals(editPass.getText().toString())){
+                                initConnection();
+                            } else
+                                genToast("Las contraseñas no coinciden");
                         } else
                             genToast("Debes escribir una contraseña.");
                     } else
@@ -84,34 +88,15 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
     private void initConnection(){
         SingleTon.showLoadDialog(getFragmentManager());
 
-        String name = "", apellidos = "", tel = "";
-
-        if(this.name.getText().length() > 0){
-            name = this.name.getText().toString();
-        }
-
-        if(apPa.getText().length() > 0){
-            apellidos = apPa.getText().toString();
-        }
-
-        if(apMa.getText().length() > 0){
-            apellidos = apellidos +" "+apMa.getText().toString();
-        }
-
-        if(this.tel.getText().length() > 0){
-            tel = this.tel.getText().toString();
-        }
-
         String url = "http://daxissoft.com/game/insert_user.php";
         ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("username", nick.getText().toString()));
-        nameValuePairs.add(new BasicNameValuePair("password", editPass.getText().toString()));
-        nameValuePairs.add(new BasicNameValuePair("nombre", name));
-        nameValuePairs.add(new BasicNameValuePair("apellidos", apellidos));
-        nameValuePairs.add(new BasicNameValuePair("telefono", tel));
         nameValuePairs.add(new BasicNameValuePair("email", email.getText().toString()));
-        nameValuePairs.add(new BasicNameValuePair("googleId", ""));
-        nameValuePairs.add(new BasicNameValuePair("googleOtr", ""));
+        nameValuePairs.add(new BasicNameValuePair("name", name.getText().toString()));
+        nameValuePairs.add(new BasicNameValuePair("ap", apPa.getText().toString()));
+        nameValuePairs.add(new BasicNameValuePair("am", apMa.getText().toString()));
+        nameValuePairs.add(new BasicNameValuePair("alias", nick.getText().toString()));
+        nameValuePairs.add(new BasicNameValuePair("phone", tel.getText().toString()));
+        nameValuePairs.add(new BasicNameValuePair("pass", editPass.getText().toString()));
 
         ConnectToServer connectToServer = new ConnectToServer(url, nameValuePairs, 2, this);
     }
@@ -120,7 +105,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
         try {
             JSONObject jsonObject = new JSONObject(json);
             if(jsonObject.getString("status").equals("ok")){
-
+                genToast(jsonObject.getString("message"));
+                SingleTon.getCurrentActivity().onBackPressed();
             } else
                 genToast(jsonObject.getString("message"));
         } catch (JSONException e) {

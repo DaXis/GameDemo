@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/close_button"
-            android:src="@drawable/tache"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
             android:layout_above="@+id/indicatorLay"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
@@ -48,7 +48,7 @@
             android:id="@+id/download"
             android:layout_alignBottom="@+id/close_button"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/download"
+            android:src="@android:drawable/ic_menu_save"
             android:layout_margin="2dp"/>
 
     </RelativeLayout>

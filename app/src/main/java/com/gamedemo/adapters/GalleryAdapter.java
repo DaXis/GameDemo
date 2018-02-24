@@ -51,7 +51,7 @@ public class GalleryAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.gall, parent, false);
 
         img = ViewHolder.get(convertView, R.id.gallImageView);
-        pb = ViewHolder.get(convertView, R.id.gallProgressBar);
+        //pb = ViewHolder.get(convertView, R.id.gallProgressBar);
 
         //Memory.loadImage(urls.get(position), img, pb);
         Picasso.with(context).load(urls.get(position)).into(img);
